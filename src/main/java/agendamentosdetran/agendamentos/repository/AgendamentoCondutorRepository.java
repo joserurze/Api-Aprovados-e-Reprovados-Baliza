@@ -20,29 +20,36 @@ public interface AgendamentoCondutorRepository extends JpaRepository<Resultados,
         List<Object[]> findByquantityResults(String dataInicial1, String dataFinal1);
 
 
-        @Query(nativeQuery = true, value = "SELECT\n" +
-                " resultado,\n" +
-                " COUNT(*) AS contagem,\n" +
-                " (COUNT(*) * 100.0 / SUM(COUNT(*)) OVER ()) AS percentual \n" +
-                " FROM\n" +
-                " (\n" +
-                " SELECT \n" +
-                " CASE\n" +
-                " WHEN resultado_id = 1 THEN 'Aprovado' \n" +
-                " ELSE 'Reprovado'\n" +
-                " END AS resultado\n" +
-                " FROM\n" +
-                " agendamento_condutor\n" +
-                " WHERE\n" +
-                " data_agendamento BETWEEN :dataInicial AND :dataFinal\n" +
-                " AND status = 1\n" +
-                " AND resultado_id IN (1, 2)\n" +
-                " AND municipio_id IN (1219, 1220)\n" +
-                " AND sexo IS NOT NULL\n" +
-                " AND data_nascimento IS NOT NULL\n" +
-                " ) AS consulta\n" +
-                " GROUP BY\n" +
-                " resultado;")
+        @Query(nativeQuery = true, value = "SELECT \n" +
+                "    resultado, \n" +
+                "    contagem,\n" +
+                "    percentual,\n" +
+                "    total_geral\n" +
+                "FROM (\n" +
+                "    SELECT \n" +
+                "        resultado, \n" +
+                "        COUNT(*) AS contagem, \n" +
+                "        (COUNT(*) * 100.0 / SUM(COUNT(*)) OVER ()) AS percentual,\n" +
+                "        (SELECT SUM(contagem) FROM (SELECT COUNT(*) AS contagem FROM agendamento_condutor WHERE data_agendamento BETWEEN '2023-12-01' AND '2023-12-31' AND status = 1 AND resultado_id IN (1, 2) AND municipio_id IN (1219, 1220) AND sexo IS NOT NULL AND data_nascimento IS NOT NULL) AS total_geral) AS total_geral\n" +
+                "    FROM (\n" +
+                "        SELECT\n" +
+                "            CASE \n" +
+                "                WHEN resultado_id = 1 THEN 'Aprovado' \n" +
+                "                ELSE 'Reprovado' \n" +
+                "            END AS resultado \n" +
+                "        FROM \n" +
+                "            agendamento_condutor \n" +
+                "        WHERE \n" +
+                "            data_agendamento BETWEEN :dataInicial AND :dataFinal \n" +
+                "            AND status = 1 \n" +
+                "            AND resultado_id IN (1, 2) \n" +
+                "            AND municipio_id IN (1219, 1220) \n" +
+                "            AND sexo IS NOT NULL\n" +
+                "            AND data_nascimento IS NOT NULL \n" +
+                "    ) AS consulta\n" +
+                "    GROUP BY\n" +
+                "        resultado\n" +
+                ") AS consulta_final;")
         List<Object[]> findapprovedFailed(Date dataInicial, Date dataFinal);
 
 }

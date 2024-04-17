@@ -10,7 +10,7 @@ public class ResultadosDTO {
     private String categoria;
     private Long contagem;
 
-    public ResultadosDTO(String dataAgendamento, String categoria, Long contagem) {
+    public ResultadosDTO(String dataAgendamento, String categoria, Long contagem, Long totalGeral) {
         this.dataAgendamento = dataAgendamento;
         this.categoria = categoria;
         this.contagem=contagem;
